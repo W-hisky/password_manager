@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{# Titolo della pagina visualizzato nel browser #}
+{% block title %}Aggiungi Password - Password Manager{% endblock %}
+
+{# Contenuto principale della pagina #}
+{% block content %}
+<!-- Container principale per il layout del contenuto -->
+<div class="layout-content-container flex flex-col w-[512px] max-w-[512px] py-5">
+    
+    <!-- Intestazione della pagina -->
+    <div class="flex flex-wrap justify-between gap-3 p-4">
+        <p class="text-[#0d141c] tracking-tight text-[32px] font-bold leading-tight min-w-72">Aggiungi nuova password</p>
+    </div>
+
+    <!-- Form per aggiungere una nuova password -->
+    <form method="POST" class="space-y-3" novalidate>
+        
+        <!-- Campo: Nome del sito -->
+        <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+            <label class="flex flex-col min-w-40 flex-1">
+                <p class="text-[#0d141c] text-base font-medium leading-normal pb-2">Nome del sito</p>
+                <input
+                    type="text"
+                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d141c] focus:outline-0 focus:ring-0 border-none bg-[#e7edf4] focus:border-none h-14 placeholder:text-[#49709c] p-4 text-base font-normal leading-normal"
+                    id="nome_sito"
+                    name="nome_sito"
+                    placeholder="es. Facebook, Gmail, Amazon..."
+                    value="{{ form_data.nome_sito if form_data else '' }}"
+                    required
+                />
+            </label>
+        </div>
+
+        <!-- Campo: Username o Email -->
+        <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+            <label class="flex flex-col min-w-40 flex-1">
+                <p class="text-[#0d141c] text-base font-medium leading-normal pb-2">Username/Email</p>
+                <input
+                    type="text"
+                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d141c] focus:outline-0 focus:ring-0 border-none bg-[#e7edf4] focus:border-none h-14 placeholder:text-[#49709c] p-4 text-base font-normal leading-normal"
+                    id="username_sito"
+                    name="username_sito"
+                    placeholder="Il tuo username o email per questo sito"
+                    value="{{ form_data.username_sito if form_data else '' }}"
+                    required
+                />
+            </label>
+        </div>
+
+        <!-- Campo: Password + Pulsante Genera -->
+        <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+            <label class="flex flex-col min-w-40 flex-1">
+                <p class="text-[#0d141c] text-base font-medium leading-normal pb-2">Password</p>
+                <div class="flex w-full flex-1 items-stretch rounded-lg">
+                    <input
+                        type="text"
+                        class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d141c] focus:outline-0 focus:ring-0 border-none bg-[#e7edf4] focus:border-none h-14 placeholder:text-[#49709c] p-4 rounded-r-none border-r-0 pr-2 text-base font-normal leading-normal"
+                        id="password_sito"
+                        name="password_sito"
+                        placeholder="La password per questo sito"
+                        value="{{ form_data.password_sito if form_data else '' }}"
+                    />
+                    <button
+                        type="button"
+                        class="text-[#49709c] flex border-none bg-[#e7edf4] items-center justify-center pr-4 pl-4 rounded-r-lg border-l-0 text-sm font-medium leading-normal"
+                        onclick="toggleGeneratore()"
+                    >
+                        Genera
+                    </button>
+                </div>
+                <p class="text-[#49709c] text-sm font-normal leading-normal pt-1">Clicca su "Genera" per configurare e creare una password sicura.</p>
+            </label>
+        </div>
+
+        <!-- Sezione: Generatore di password (inizialmente nascosta) -->
+        <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3" id="generatore-section"
+             {% if password_generata or genera_password %}style="display: block;"{% else %}style="display: none;"{% endif %}>
+            <div class="w-full rounded-lg bg-[#f5f7fa] p-4">
+                <h6 class="text-[#0d141c] text-base font-medium leading-normal mb-3">Generatore Password</h6>
+                <div class="flex flex-wrap gap-4">
+
+                    <!-- Lunghezza password -->
+                    <div class="w-[100px]">
+                        <label class="text-[#0d141c] text-sm font-medium leading-normal pb-2">Lunghezza:</label>
+                        <input
+                            type="number"
+                            class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d141c] focus:outline-0 focus:ring-0 border-none bg-[#e7edf4] focus:border-none h-10 placeholder:text-[#49709c] p-2 text-sm font-normal leading-normal"
+                            name="lunghezza"
+                            value="{{ form_data.lunghezza if form_data and form_data.lunghezza else 16 }}"
+                            min="4"
+                            max="128"
+                        />
+                    </div>
+
+                    <!-- Opzioni di generazione password -->
+                    <div class="flex-1">
+                        <div class="flex flex-wrap gap-4">
+                            <div class="flex-1 min-w-[120px]">
+                                <div class="form-check">
+                                    <input
+                                        class="form-checkbox h-4 w-4 text-[#0c77f2] rounded"
+                                        type="checkbox"
+                                        name="usa_maiuscole"
+                                        {% if not form_data or form_data and form_data.usa_maiuscole != False %}checked{% endif %}
+                                    />
+                                    <label class="text-[#0d141c] text-sm font-normal leading-normal ml-2">Maiuscole (A-Z)</label>
+                                </div>
+                                <div class="form-check">
+                                    <input
+                                        class="form-checkbox h-4 w-4 text-[#0c77f2] rounded"
+                                        type="checkbox"
+                                        name="usa_numeri"
+                                        {% if not form_data or form_data and form_data.usa_numeri != False %}checked{% endif %}
+                                    />
+                                    <label class="text-[#0d141c] text-sm font-normal leading-normal ml-2">Numeri (0-9)</label>
+                                </div>
+                            </div>
+                            <div class="flex-1 min-w-[120px]">
+                                <div class="form-check">
+                                    <input
+                                        class="form-checkbox h-4 w-4 text-[#0c77f2] rounded"
+                                        type="checkbox"
+                                        name="caratteri_speciali"
+                                        {% if not form_data or form_data and form_data.caratteri_speciali != False %}checked{% endif %}
+                                    />
+                                    <label class="text-[#0d141c] text-sm font-normal leading-normal ml-2">Caratteri speciali (!@#$%&*)</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottone per generare la password -->
+                <div class="mt-4">
+                    <button
+                        type="submit"
+                        name="genera_password"
+                        value="1"
+                       class="nav-link flex items-center justify-center px-4 py-2 text-sm font-medium text-[#0d141c] bg-gradient-to-r from-[#f8f9fa] to-[#e9ecef] rounded-md border border-[#e1e5e9] transition-all duration-300 hover:shadow-md hover:scale-105 active:scale-95 relative overflow-hidden">
+                        <span class="truncate">🎲 Genera Password</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pulsanti: Annulla e Salva -->
+        <div class="flex justify-stretch">
+            <div class="flex flex-1 gap-3 flex-wrap px-4 py-3 justify-end">
+                <a
+                    href="{{ url_for('dashboard') }}"
+                   class="nav-link flex items-center justify-center px-4 py-2 text-sm font-medium text-[#0d141c] bg-gradient-to-r from-[#f8f9fa] to-[#e9ecef] rounded-md border border-[#e1e5e9] transition-all duration-300 hover:shadow-md hover:scale-105 active:scale-95 relative overflow-hidden">
+                    <span class="truncate">Annulla</span>
+                </a>
+                <button
+                    type="submit"
+                    name="salva_password"
+                    value="1"
+                   class="nav-link flex items-center justify-center px-4 py-2 text-sm font-medium text-[#0d141c] bg-gradient-to-r from-[#f8f9fa] to-[#e9ecef] rounded-md border border-[#e1e5e9] transition-all duration-300 hover:shadow-md hover:scale-105 active:scale-95 relative overflow-hidden">
+                    <span class="truncate">Salva password</span>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Script JS per mostrare/nascondere il generatore di password -->
+<script>
+function toggleGeneratore() {
+    const section = document.getElementById('generatore-section');
+    const isVisible = section.style.display !== 'none';
+    section.style.display = isVisible ? 'none' : 'block';
+}
+</script>
+{% endblock %}

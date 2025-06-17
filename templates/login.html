@@ -1,0 +1,62 @@
+{# Estende il layout base del sito #}
+{% extends "base.html" %}
+
+{# Titolo della pagina visualizzato nella scheda del browser #}
+{% block title %}Login - Password Manager{% endblock %}
+
+{# Blocco principale del contenuto della pagina #}
+{% block content %}
+<!-- Container principale con layout centrato -->
+<div class="layout-content-container flex flex-col w-[512px] max-w-[512px] py-5">
+    
+    <!-- Titolo della pagina: Accesso -->
+    <h2 class="text-[#101418] tracking-tight text-[28px] font-bold leading-tight px-4 text-center pb-3 pt-5">Accesso</h2>
+
+    <!-- Form di login -->
+    <form method="POST" class="space-y-3">
+        
+        <!-- Campo input: Nome utente -->
+        <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+            <label class="flex flex-col min-w-40 flex-1">
+                <p class="text-[#101418] text-base font-medium leading-normal pb-2">Nome utente</p>
+                <input
+                    type="text"
+                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-[#101418] focus:outline-0 focus:ring-0 border border-[#d4dbe2] bg-gray-50 focus:border-[#d4dbe2] h-14 placeholder:text-[#5c728a] p-[15px] text-base font-normal leading-normal"
+                    id="username"
+                    name="username"
+                    placeholder="Inserisci il tuo nome utente"
+                    required
+                />
+            </label>
+        </div>
+
+        <!-- Campo input: Password -->
+        <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+            <label class="flex flex-col min-w-40 flex-1">
+                <p class="text-[#101418] text-base font-medium leading-normal pb-2">Password</p>
+                <input
+                    type="password"
+                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-[#101418] focus:outline-0 focus:ring-0 border border-[#d4dbe2] bg-gray-50 focus:border-[#d4dbe2] h-14 placeholder:text-[#5c728a] p-[15px] text-base font-normal leading-normal"
+                    id="password"
+                    name="password"
+                    placeholder="Inserisci la tua password"
+                    required
+                />
+            </label>
+        </div>
+
+        <!-- Bottone per effettuare l'accesso -->
+        <div class="flex px-4 py-3">
+            <button
+                type="submit"
+                class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-12 px-5 flex-1 bg-[#dce7f3] text-[#101418] text-base font-bold leading-normal tracking-[0.015em]"
+            >
+                <span class="truncate">Accedi</span>
+            </button>
+        </div>
+    </form>
+
+    <!-- Separatore orizzontale sotto il form -->
+    <hr class="my-6 border-[#eaedf1] mx-4">
+</div>
+{% endblock %}

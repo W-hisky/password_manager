@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{# Titolo della pagina visualizzato nel browser #}
+{% block title %}Dashboard - Password Manager{% endblock %}
+
+{# Contenuto principale della pagina #}
+{% block content %}
+<!-- Container principale del layout -->
+<div class="layout-content-container flex flex-col max-w-[4000px] flex-1 py-5">
+
+    <!-- Header con titolo e navigazione -->
+    <div class="flex flex-wrap justify-between items-center gap-3 p-4 mb-6">
+        <p class="text-[#0d141c] tracking-tight text-[32px] font-bold leading-tight min-w-72">Le tue password salvate (crittografate)</p>
+    </div>
+
+    {# Verifica se ci sono password salvate #}
+    {% if password_salvate %}
+    <div class="px-4 py-3">
+        <!-- Tabella per mostrare le password salvate -->
+        <div class="flex overflow-hidden rounded-lg border border-[#cedae8] bg-slate-50">
+            <table class="flex-1">
+                <thead>
+                    <tr class="bg-slate-50">
+                        <th class="px-4 py-3 text-left text-[#0d141c] text-sm font-medium leading-normal">Sito</th>
+                        <th class="px-4 py-3 text-left text-[#0d141c] text-sm font-medium leading-normal">Username</th>
+                        <th class="px-4 py-3 text-left text-[#0d141c] text-sm font-medium leading-normal">Password</th>
+                        <th class="px-4 py-3 text-left text-[#0d141c] text-sm font-medium leading-normal">Data creazione</th>
+                        <th class="px-4 py-3 text-left text-[#0d141c] text-sm font-medium leading-normal">Ultima modifica</th>
+                        <th class="px-4 py-3 text-left text-[#0d141c] text-sm font-medium leading-normal">Azioni</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {# Ciclo per iterare su tutte le password salvate #}
+                    {% for password in password_salvate %}
+                    <tr class="border-t border-t-[#cedae8]">
+                        <td class="h-[72px] px-4 py-2 text-[#0d141c] text-sm font-normal leading-normal">{{ password.nome_sito }}</td>
+                        <td class="h-[72px] px-4 py-2 text-[#0d141c] text-sm font-normal leading-normal">{{ password.username_sito }}</td>
+                        <td class="h-[72px] px-4 py-2 text-[#49709c] text-sm font-normal leading-normal">
+                            <!-- Password nascosta di default -->
+                            <span class="password-hidden" id="password-{{ password.id }}">••••••••</span>
+                            <!-- Password visibile quando richiesto -->
+                            <span class="password-visible hidden" id="password-visible-{{ password.id }}">{{ password.password_sito }}</span>
+                            <!-- Pulsante per mostrare/nascondere la password -->
+                            <button class="ml-2 inline-flex items-center justify-center rounded-md h-8 px-3 bg-white border border-[#e1e5e9] text-[#0d141c] text-sm font-medium leading-normal hover:bg-[#f8f9fa] transition-all duration-200 active:scale-95" onclick="togglePassword('{{ password.id }}')">
+                                <span id="toggle-text-{{ password.id }}">Mostra</span>
+                            </button>
+                            <!-- Pulsante per copiare la password negli appunti -->
+                            <button class="ml-1 inline-flex items-center justify-center rounded-md h-8 px-3 bg-white border border-[#e1e5e9] text-[#0d141c] text-sm font-medium leading-normal hover:bg-[#f8f9fa] transition-all duration-200 active:scale-95" onclick="copyPassword('{{ password.password_sito }}')">Copia</button>
+                        </td>
+                        <td class="h-[72px] px-4 py-2 text-[#49709c] text-sm font-normal leading-normal">{{ password.data_creazione }}</td>
+                        <td class="h-[72px] px-4 py-2 text-[#49709c] text-sm font-normal leading-normal">{{ password.data_modifica }}</td>
+                        <td class="h-[72px] px-4 py-2 text-sm font-normal leading-normal">
+                            <!-- Pulsante per modificare la password -->
+                            <a href="{{ url_for('modifica_password', password_id=password.id) }}" class="inline-flex items-center justify-center rounded-md h-8 px-3 bg-white border border-[#e1e5e9] text-[#0d141c] text-sm font-medium leading-normal mr-2 hover:bg-[#f8f9fa] transition-all duration-200 active:scale-95">Modifica</a>
+                            <!-- Pulsante per eliminare la password -->
+                            <a href="{{ url_for('elimina_password', password_id=password.id) }}" class="inline-flex items-center justify-center rounded-md h-8 px-3 bg-white border border-[#e1e5e9] text-[#dc3545] text-sm font-medium leading-normal hover:bg-[#f8f9fa] hover:border-[#dc3545] transition-all duration-200 active:scale-95" onclick="return confirm('Sei sicuro di voler eliminare questa password?')">Elimina</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <!-- Messaggio di avviso se non ci sono password salvate -->
+    <div class="text-center p-8">
+        <div class="max-w-md mx-auto">
+            <div class="mb-4">
+                <div class="w-16 h-16 bg-[#f8f9fa] rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-[#6c757d]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-[#0d141c] mb-2">Nessuna password salvata</h3>
+                <p class="text-[#6c757d] text-sm mb-6">Inizia aggiungendo la tua prima password per mantenere i tuoi account sicuri.</p>
+                <!-- Pulsante per aggiungere una nuova password -->
+                <a href="{{ url_for('aggiungi_password') }}" 
+                   class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#e7edf4] text-[#0d141c] text-sm font-bold leading-normal tracking-[0.015em]">
+                    Aggiungi la prima password
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Script JavaScript per interattività -->
+    <script>
+        // Funzione per mostrare/nascondere la password
+        function togglePassword(id) {
+            const hiddenElement = document.getElementById('password-' + id);
+            const visibleElement = document.getElementById('password-visible-' + id);
+            const toggleText = document.getElementById('toggle-text-' + id);
+            
+            if (hiddenElement.classList.contains('hidden')) {
+                hiddenElement.classList.remove('hidden');
+                visibleElement.classList.add('hidden');
+                toggleText.textContent = 'Mostra';
+            } else {
+                hiddenElement.classList.add('hidden');
+                visibleElement.classList.remove('hidden');
+                toggleText.textContent = 'Nascondi';
+            }
+        }
+
+        // Funzione per copiare la password negli appunti
+        function copyPassword(password) {
+            navigator.clipboard.writeText(password).then(function() {
+                const button = event.target;
+                const originalText = button.textContent;
+                button.textContent = 'Copiato!';
+                button.classList.add('bg-[#d1edff]', 'border-[#0d6efd]', 'text-[#0d6efd]');
+                button.classList.remove('bg-white', 'border-[#e1e5e9]', 'text-[#0d141c]');
+                
+                setTimeout(function() {
+                    button.textContent = originalText;
+                    button.classList.remove('bg-[#d1edff]', 'border-[#0d6efd]', 'text-[#0d6efd]');
+                    button.classList.add('bg-white', 'border-[#e1e5e9]', 'text-[#0d141c]');
+                }, 2000);
+            });
+        }
+    </script>
+</div>
+{% endblock %}

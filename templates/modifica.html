@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{# Titolo della pagina visualizzato nel browser #}
+{% block title %}Modifica Password - Password Manager{% endblock %}
+
+{# Contenuto principale della pagina #}
+{% block content %}
+<!-- Container principale del layout -->
+<div class="layout-content-container flex flex-col w-[512px] max-w-[512px] py-5">
+
+    <!-- Intestazione della pagina -->
+    <div class="flex flex-wrap justify-center gap-3 p-4">
+        <p class="text-[#0d141c] tracking-tight text-[32px] font-bold leading-tight w-full text-center">Modifica Password</p>
+    </div>
+
+    <!-- Form per modificare una password esistente -->
+    <form method="POST" class="space-y-3" novalidate>
+        
+        <!-- Campo: Nome del sito -->
+        <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+            <label class="flex flex-col min-w-40 flex-1">
+                <p class="text-[#0d141c] text-base font-medium leading-normal pb-2">Nome del sito</p>
+                <input
+                    type="text"
+                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d141c] focus:outline-0 focus:ring-0 border-none bg-[#e7edf4] focus:border-none h-14 placeholder:text-[#49709c] p-4 text-base font-normal leading-normal"
+                    id="nome_sito"
+                    name="nome_sito"
+                    value="{{ password_entry.nome_sito }}"
+                    required
+                />
+            </label>
+        </div>
+
+        <!-- Campo: Username/Email -->
+        <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+            <label class="flex flex-col min-w-40 flex-1">
+                <p class="text-[#0d141c] text-base font-medium leading-normal pb-2">Username/Email</p>
+                <input
+                    type="text"
+                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d141c] focus:outline-0 focus:ring-0 border-none bg-[#e7edf4] focus:border-none h-14 placeholder:text-[#49709c] p-4 text-base font-normal leading-normal"
+                    id="username_sito"
+                    name="username_sito"
+                    value="{{ password_entry.username_sito }}"
+                    required
+                />
+            </label>
+        </div>
+
+        <!-- Campo: Password -->
+        <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+            <label class="flex flex-col min-w-40 flex-1">
+                <p class="text-[#0d141c] text-base font-medium leading-normal pb-2">Password</p>
+                <input
+                    type="password"
+                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d141c] focus:outline-0 focus:ring-0 border-none bg-[#e7edf4] focus:border-none h-14 placeholder:text-[#49709c] p-4 text-base font-normal leading-normal"
+                    id="password_sito"
+                    name="password_sito"
+                    value="{{ password_entry.password_sito }}"
+                    required
+                />
+            </label>
+        </div>
+
+        <!-- Pulsanti: Aggiorna Password / Annulla -->
+        <div class="flex max-w-[480px] flex-wrap items-center gap-4 px-4 py-3">
+            <button
+                type="submit"
+                class="flex min-w-[84px] max-w-[240px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#e7edf4] text-[#0d141c] text-sm font-bold leading-normal tracking-[0.015em]"
+            >
+                <span class="truncate">Aggiorna Password</span>
+            </button>
+            <a
+                href="{{ url_for('dashboard') }}"
+                class="flex min-w-[84px] max-w-[240px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#e7edf4] text-[#0d141c] text-sm font-bold leading-normal tracking-[0.015em]"
+            >
+                <span class="truncate">Annulla</span>
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Script JavaScript per gestire validazioni e popup di feedback -->
+<script>
+// Aggiunge un event listener per la validazione del form
+document.querySelector('form').addEventListener('submit', function(event) {
+    const requiredInputs = this.querySelectorAll('input[required]');
+    let hasError = false;
+
+    // Controllo campi obbligatori
+    requiredInputs.forEach(input => {
+        if (!input.value.trim()) {
+            hasError = true;
+            const label = input.closest('label').querySelector('p').textContent;
+            showValidationPopup(`Per favore, compila il campo "${label}"`);
+        }
+    });
+
+    if (!hasError) {
+        // Simula un popup di successo (se il backend non genera un flash)
+        setTimeout(() => showSuccessPopup('Password aggiornata con successo!'), 100);
+    }
+
+    if (hasError) {
+        event.preventDefault();
+    }
+});
+
+// Funzione per mostrare popup di errore
+function showValidationPopup(message) {
+    const container = document.getElementById('flash-container');
+    const popup = document.createElement('div');
+    popup.className = 'flash-message bg-[#f8d7da] text-[#721c24] text-base font-normal leading-normal rounded-lg p-4 shadow-md transition-transform transform translate-x-full opacity-0';
+    popup.dataset.category = 'error';
+    popup.textContent = message;
+    container.appendChild(popup);
+    setTimeout(() => {
+        popup.classList.remove('translate-x-full', 'opacity-0');
+        popup.classList.add('translate-x-0', 'opacity-100');
+    }, 100);
+    setTimeout(() => {
+        popup.classList.add('translate-x-full', 'opacity-0');
+        setTimeout(() => popup.remove(), 300);
+    }, 3000);
+}
+
+// Funzione per mostrare popup di successo
+function showSuccessPopup(message) {
+    const container = document.getElementById('flash-container');
+    const popup = document.createElement('div');
+    popup.className = 'flash-message bg-[#d1deed] text-[#0d141c] text-base font-normal leading-normal rounded-lg p-4 shadow-md transition-transform transform translate-x-full opacity-0';
+    popup.dataset.category = 'success';
+    popup.textContent = message;
+    container.appendChild(popup);
+    setTimeout(() => {
+        popup.classList.remove('translate-x-full', 'opacity-0');
+        popup.classList.add('translate-x-0', 'opacity-100');
+    }, 100);
+    setTimeout(() => {
+        popup.classList.add('translate-x-full', 'opacity-0');
+        setTimeout(() => popup.remove(), 300);
+    }, 3000);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <!-- Metadati e configurazioni base -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Titolo della pagina - Sovrascrivibile nei template figli -->
+    <title>{% block title %}Password Manager{% endblock %}</title>
+
+    <!-- Font: Inter e Noto Sans caricati da Google Fonts -->
+    <link rel="preconnect" href="https://fonts.gstatic.com/"  crossorigin="" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Inter%3Awght%40400%3B500%3B700%3B900&family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" />
+
+    <!-- Favicon (vuoto per ora, puoi sostituirlo con un'icona reale) -->
+    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64," />
+
+    <!-- Tailwind CSS via CDN con plugin utili -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+</head>
+
+<body class="relative flex size-full min-h-screen flex-col bg-gray-50 group/design-root overflow-x-hidden"
+      style='font-family: Inter, "Noto Sans", sans-serif;'>
+
+    <!-- Container principale dell'applicazione -->
+    <div class="layout-container flex h-full grow flex-col">
+
+        <!-- Header / Barra di navigazione -->
+        <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#e7edf4] px-10 py-3"> 
+
+            <!-- Logo e titolo dell'app -->
+            <div class="flex items-center gap-4 text-[#0d141c]">
+                <!-- SVG logo a forma di chiave -->
+                <div class="size-4">
+                    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M24 4H6V17.3333V30.6667H24V44H42V30.6667V17.3333H24V4Z" fill="currentColor"></path>
+                    </svg>
+                </div>
+                <!-- Titolo con link al dashboard se l'utente è loggato -->
+                <h2 class="text-[#0d141c] text-lg font-bold leading-tight tracking-[-0.015em]">
+                    {% if session.utente_id %}
+                        <a href="{{ url_for('dashboard') }}" class="text-[#0d141c] no-underline hover:text-[#0d141c] transition-colors duration-200">Password Manager</a>
+                    {% else %}
+                        Password Manager
+                    {% endif %}
+                </h2>
+            </div>
+
+            <!-- Menu di navigazione (visibile solo se l'utente è autenticato) -->
+            {% if session.utente_id %}
+            <div class="flex items-center gap-6">
+
+                <!-- Barra di navigazione principale -->
+                <nav class="flex items-center gap-1 bg-white rounded-lg border border-[#e1e5e9] p-1 shadow-sm relative">
+                    <!-- Indicatore scorrevole che evidenzia la voce attiva -->
+                    <div id="nav-indicator" class="absolute inset-0 bg-gradient-to-r from-[#4a90e2] to-[#357abd] opacity-10 rounded-md transition-all duration-300" style="width: 0; height: 0;"></div>
+
+                    <!-- Collegamenti menu -->
+                    <a href="{{ url_for('dashboard') }}" 
+                       class="nav-link flex items-center justify-center px-4 py-2 text-sm font-medium text-[#0d141c] rounded-md transition-all duration-300 relative z-10"
+                       data-active-class="bg-gradient-to-r from-[#f8f9fa] to-[#e9ecef] border border-[#e1e5e9]"
+                       data-inactive-class="text-[#6c757d] hover:bg-gradient-to-r hover:from-[#f8f9fa] hover:to-[#e9ecef] hover:text-[#0d141c]">
+                        <span class="relative z-10">My Vault</span>
+                    </a>
+
+                    <a href="{{ url_for('genera_password') }}" 
+                       class="nav-link flex items-center justify-center px-4 py-2 text-sm font-medium text-[#6c757d] rounded-md transition-all duration-300 relative z-10"
+                       data-active-class="bg-gradient-to-r from-[#f8f9fa] to-[#e9ecef] border border-[#e1e5e9]"
+                       data-inactive-class="text-[#6c757d] hover:bg-gradient-to-r hover:from-[#f8f9fa] hover:to-[#e9ecef] hover:text-[#0d141c]">
+                        <span class="relative z-10">Genera Password</span>
+                    </a>
+
+                    <a href="{{ url_for('aggiungi_password') }}" 
+                       class="nav-link flex items-center justify-center px-4 py-2 text-sm font-medium text-[#6c757d] rounded-md transition-all duration-300 relative z-10"
+                       data-active-class="bg-gradient-to-r from-[#f8f9fa] to-[#e9ecef] border border-[#e1e5e9]"
+                       data-inactive-class="text-[#6c757d] hover:bg-gradient-to-r hover:from-[#f8f9fa] hover:to-[#e9ecef] hover:text-[#0d141c]">
+                        <span class="relative z-10">Aggiungi</span>
+                    </a>
+
+                    <a href="{{ url_for('cambia_password_master') }}" 
+                       class="nav-link flex items-center justify-center px-4 py-2 text-sm font-medium text-[#6c757d] rounded-md transition-all duration-300 relative z-10"
+                       data-active-class="bg-gradient-to-r from-[#f8f9fa] to-[#e9ecef] border border-[#e1e5e9]"
+                       data-inactive-class="text-[#6c757d] hover:bg-gradient-to-r hover:from-[#f8f9fa] hover:to-[#e9ecef] hover:text-[#0d141c]">
+                        <span class="relative z-10">Modifica Master</span>
+                    </a>
+                </nav>
+
+                <!-- Informazioni utente e logout -->
+                <div class="flex items-center gap-4 text-[#0d141c]">
+                    <span class="text-base font-medium bg-gradient-to-r from-[#6c757d] to-[#495057] bg-clip-text text-transparent">
+                        Benvenuto, {{ session.username }}!
+                    </span>
+
+                    <!-- Pulsante Spegni server -->
+                    <a href="{{ url_for('shutdown') }}" 
+                       class="nav-link flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-red-600 rounded-md border border-red-600 transition-all duration-300 hover:shadow-md hover:scale-105 active:scale-95 relative overflow-hidden"
+                       onclick="return confirm('Sei sicuro di voler spegnere il server?')">
+                        <span class="relative z-10">🔌 Spegni</span>
+                    </a>
+
+                    <!-- Pulsante Logout -->
+                    <a href="{{ url_for('logout') }}" 
+                       class="nav-link flex items-center justify-center px-4 py-2 text-sm font-medium text-[#0d141c] bg-gradient-to-r from-[#f8f9fa] to-[#e9ecef] rounded-md border border-[#e1e5e9] transition-all duration-300 hover:shadow-md hover:scale-105 active:scale-95 relative overflow-hidden">
+                        Logout
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </header>
+
+        <!-- Contenitore principale del contenuto dinamico -->
+        <div class="px-40 flex flex-1 justify-center py-5">
+
+            <!-- Area per mostrare messaggi flash (successo / errore) -->
+            <div class="fixed top-4 right-4 z-50 max-w-[512px] space-y-2" id="flash-container">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="flash-message bg-[#e7edf4] text-[#0d141c] text-base font-normal leading-normal rounded-lg p-4 shadow-md transition-transform transform translate-x-full opacity-0"
+                                 data-category="{{ category }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+
+            <!-- Blocco dove i template figli inseriscono il loro contenuto -->
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    <!-- Script JavaScript per interattività -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Mostra i messaggi flash con animazioni
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach((message, index) => {
+                if (message.dataset.category === 'success') {
+                    message.classList.add('bg-[#d1deed]', 'text-[#0d141c]');
+                } else if (message.dataset.category === 'error') {
+                    message.classList.add('bg-[#f8d7da]', 'text-[#721c24]');
+                }
+
+                // Animazione entrata
+                setTimeout(() => {
+                    message.classList.remove('translate-x-full', 'opacity-0');
+                    message.classList.add('translate-x-0', 'opacity-100');
+                }, index * 100);
+
+                // Animazione uscita dopo 3 secondi
+                setTimeout(() => {
+                    message.classList.add('translate-x-full', 'opacity-0');
+                    setTimeout(() => message.remove(), 300);
+                }, 3000 + index * 100);
+            });
+
+            // Validazione base dei form
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.addEventListener('submit', (event) => {
+                    const requiredInputs = form.querySelectorAll('input[required]');
+                    let hasError = false;
+                    requiredInputs.forEach(input => {
+                        if (!input.value.trim()) {
+                            hasError = true;
+                            const label = input.closest('label').querySelector('p').textContent;
+                            showValidationPopup(`Per favore, compila il campo "${label}"`);
+                        }
+                    });
+                    if (hasError) {
+                        event.preventDefault();
+                    }
+                });
+            });
+
+            // Effetti visivi sui pulsanti di navigazione
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-1px)';
+                });
+                link.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+
+            // Funzione per mostrare popup di validazione personalizzati
+            function showValidationPopup(message) {
+                const container = document.getElementById('flash-container');
+                const popup = document.createElement('div');
+                popup.className = 'flash-message bg-[#f8d7da] text-[#721c24] text-base font-normal leading-normal rounded-lg p-4 shadow-md transition-transform transform translate-x-full opacity-0';
+                popup.dataset.category = 'error';
+                popup.textContent = message;
+                container.appendChild(popup);
+                setTimeout(() => {
+                    popup.classList.remove('translate-x-full', 'opacity-0');
+                    popup.classList.add('translate-x-0', 'opacity-100');
+                }, 100);
+                setTimeout(() => {
+                    popup.classList.add('translate-x-full', 'opacity-0');
+                    setTimeout(() => popup.remove(), 300);
+                }, 3000);
+            }
+
+            // Gestione indicatore di navigazione attiva
+            const navIndicator = document.getElementById('nav-indicator');
+            const currentPath = window.location.pathname;
+
+            let activeLink = null;
+            navLinks.forEach(link => {
+                const linkPath = new URL(link.href).pathname;
+                if (currentPath === linkPath) {
+                    activeLink = link;
+                    link.classList.add(...link.dataset.activeClass.split(' '));
+                    link.classList.remove(...link.dataset.inactiveClass.split(' '));
+                } else {
+                    link.classList.add(...link.dataset.inactiveClass.split(' '));
+                    link.classList.remove(...link.dataset.activeClass.split(' '));
+                }
+            });
+
+            // Posiziona l'indicatore sul link attivo
+            if (activeLink && navIndicator) {
+                const linkRect = activeLink.getBoundingClientRect();
+                const navRect = activeLink.parentElement.getBoundingClientRect();
+                navIndicator.style.width = `${linkRect.width}px`;
+                navIndicator.style.height = `${linkRect.height}px`;
+                navIndicator.style.left = `${linkRect.left - navRect.left}px`;
+                navIndicator.style.top = `${linkRect.top - navRect.top}px`;
+            }
+
+            // Effetto hover sull'indicatore
+            navLinks.forEach(link => {
+                link.addEventListener('mouseenter', () => {
+                    if (!link.classList.contains(...link.dataset.activeClass.split(' '))) {
+                        const linkRect = link.getBoundingClientRect();
+                        const navRect = link.parentElement.getBoundingClientRect();
+                        navIndicator.style.width = `${linkRect.width}px`;
+                        navIndicator.style.height = `${linkRect.height}px`;
+                        navIndicator.style.left = `${linkRect.left - navRect.left}px`;
+                        navIndicator.style.top = `${linkRect.top - navRect.top}px`;
+                    }
+                });
+                link.addEventListener('mouseleave', () => {
+                    if (activeLink && !link.classList.contains(...link.dataset.activeClass.split(' '))) {
+                        const linkRect = activeLink.getBoundingClientRect();
+                        const navRect = activeLink.parentElement.getBoundingClientRect();
+                        navIndicator.style.width = `${linkRect.width}px`;
+                        navIndicator.style.height = `${linkRect.height}px`;
+                        navIndicator.style.left = `${linkRect.left - navRect.left}px`;
+                        navIndicator.style.top = `${linkRect.top - navRect.top}px`;
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
